@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>이름 없는 세계 - 분해 호명</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main id="stage" aria-label="타이포 대지">
+      <div id="call-hint" aria-hidden="true">호명하세요</div>
+      <input id="call-input" type="text" placeholder="호명하세요" autocomplete="off" spellcheck="false" aria-label="호명 입력" />
+      <input id="live-line" type="text" readonly aria-live="polite" />
+      <div id="glyph-layer" aria-hidden="true"></div>
+    </main>
+
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>
