@@ -1,7 +1,9 @@
 :root {
-  --bg: #f4f4f1;
+  --bg: #ffffff;
   --ink: #0f0f0f;
   --sub: #3a3a3a;
+  --preview-height: clamp(76px, 10vh, 112px);
+  --main-gap: clamp(22px, 3.4vh, 42px);
 }
 
 * {
@@ -17,15 +19,25 @@ body {
 }
 
 body {
+  position: relative;
   font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Pretendard", sans-serif;
-  background:
-    radial-gradient(circle at 18% 12%, #ffffff 0%, var(--bg) 44%, #ecece8 100%),
-    linear-gradient(135deg, rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.18));
+  background: #ffffff;
   color: var(--ink);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: url("/backgrounds/paper_8.png") center / cover no-repeat;
+  opacity: 0.74;
+  pointer-events: none;
 }
 
 #stage {
   position: relative;
+  z-index: 1;
   width: 100vw;
   height: 100vh;
   cursor: text;
@@ -41,24 +53,24 @@ body {
   color: rgba(0, 0, 0, 0.28);
   user-select: none;
   pointer-events: none;
+  display: none;
 }
 
 #call-input {
   position: absolute;
-  top: 2.2vh;
-  left: 2.2vw;
-  right: 2.2vw;
+  inset: 0;
   z-index: 30;
-  width: calc(100% - 4.4vw);
+  width: 100%;
+  height: 100%;
   border: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.14);
   background: transparent;
   outline: none;
-  padding: 0 0 0.2rem;
-  font-size: clamp(1.15rem, 2.2vw, 2rem);
-  letter-spacing: 0.01em;
+  padding: 0;
+  font-size: 16px;
+  letter-spacing: 0;
   color: transparent;
-  caret-color: rgba(0, 0, 0, 0.4);
+  caret-color: transparent;
+  opacity: 0;
 }
 
 #call-input::placeholder {
@@ -83,6 +95,7 @@ body {
   pointer-events: none;
   width: calc(100% - 4.4vw);
   user-select: none;
+  display: none;
 }
 
 #live-line.word {
@@ -90,9 +103,93 @@ body {
   letter-spacing: 0.01em;
 }
 
+#typed-preview {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: var(--preview-height);
+  padding: 18px 2vw;
+  overflow: hidden;
+  border-bottom: 0;
+  background: transparent;
+  opacity: 1;
+  pointer-events: none;
+}
+
+#typed-preview::before {
+  content: "...";
+  flex: 0 0 auto;
+  min-width: 24px;
+  transform: translateY(-3px);
+  color: rgba(15, 15, 15, 0.42);
+  font-family: "Times New Roman", serif;
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.preview-token {
+  position: relative;
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  opacity: 0.82;
+  transform:
+    translate(var(--preview-x, 0px), var(--preview-y, 0px)) rotate(var(--preview-rot, 0deg));
+}
+
+.preview-token.final {
+  width: 26px;
+  height: 26px;
+  opacity: 0.58;
+}
+
+.preview-space {
+  flex: 0 0 clamp(12px, 2.0vw, 35px);
+  height: 1px;
+}
+
+.preview-token .pattern-layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.preview-token .pattern-layer.under {
+  opacity: 0.72;
+  transform: translate(-45%, -47%) rotate(-3deg) scale(1.13);
+  filter: saturate(1.08) contrast(1.08) brightness(0.9);
+}
+
+.preview-token .pattern-layer.over {
+  opacity: 0.76;
+  z-index: 2;
+  transform: translate(-53%, -52%) rotate(2deg) scale(0.96);
+  mix-blend-mode: screen;
+  filter: saturate(0.56) contrast(0.86) brightness(1.04);
+}
+
 #glyph-layer {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: calc(var(--preview-height) + var(--main-gap));
+  bottom: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -107,9 +204,7 @@ body {
   letter-spacing: var(--ls, 0em);
   opacity: calc(0.22 + var(--clarity, 0) * 0.78);
   transform:
-    translate3d(var(--x, 0px), var(--y, 0px), 0)
-    rotate(calc(var(--rot, 0deg) + var(--pulse, 0) * 1.2deg))
-    scale(var(--sc, 1));
+    translate3d(var(--x, 0px), var(--y, 0px), 0) rotate(calc(var(--rot, 0deg) + var(--pulse, 0) * 1.2deg)) scale(var(--sc, 1));
   color: rgb(var(--ink-rgb, 10 10 10) / calc(0.68 + var(--clarity, 0) * 0.32));
   text-shadow:
     calc(var(--trace-x, 0px) * 0.24) calc(var(--trace-y, 0px) * 0.24) 0 rgb(var(--shadow-rgb, 0 0 0) / calc(0.09 + var(--trace, 0) * 0.18));
@@ -163,4 +258,70 @@ body {
 .glyph.word {
   font-size: clamp(3.8rem, 7.8vw, 9.2rem);
   letter-spacing: 0;
+}
+
+.glyph.pattern {
+  width: var(--pattern-size, 128px);
+  height: var(--pattern-size, 128px);
+  display: block;
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+  text-shadow: none;
+  transform:
+    translate3d(var(--x, 0px), var(--y, 0px), 0) translate(-50%, -50%) scale(var(--sc, 1));
+  transform-origin: 50% 50%;
+  will-change: transform, opacity, filter;
+}
+
+.glyph.pattern .pattern-layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 50%;
+  filter:
+    saturate(var(--sat, 1)) contrast(var(--contrast, 1)) brightness(var(--brightness, 1));
+  user-select: none;
+  pointer-events: none;
+}
+
+.glyph.pattern .pattern-layer.under {
+  opacity: 0.76;
+  transform:
+    translate(calc(-50% + var(--under-x, 0px)), calc(-50% + var(--under-y, 0px))) rotate(calc(var(--rot, 0deg) + var(--pulse, 0) * 1.4deg + var(--under-rot, 0deg))) scale(1.16);
+  filter:
+    saturate(calc(var(--sat, 1) * 1.08)) contrast(calc(var(--contrast, 1) * 1.08)) brightness(calc(var(--brightness, 1) * 0.9));
+}
+
+.glyph.pattern .pattern-layer.over {
+  opacity: 0.76;
+  z-index: 2;
+  transform:
+    translate(calc(-50% + var(--over-x, 0px)), calc(-50% + var(--over-y, 0px))) rotate(calc(var(--rot, 0deg) + var(--pulse, 0) * 1.4deg + var(--over-rot, 0deg))) scale(0.98);
+  mix-blend-mode: screen;
+  filter:
+    saturate(calc(var(--sat, 1) * 0.56)) contrast(calc(var(--contrast, 1) * 0.86)) brightness(calc(var(--brightness, 1) * 1.04));
+}
+
+.glyph.pattern.final .pattern-layer {
+  filter:
+    saturate(var(--sat, 0.55)) contrast(var(--contrast, 0.94)) brightness(var(--brightness, 0.98));
+}
+
+.glyph.pattern.final .pattern-layer.under {
+  opacity: 0.68;
+  filter:
+    saturate(calc(var(--sat, 0.55) * 1.08)) contrast(calc(var(--contrast, 0.94) * 1.08)) brightness(calc(var(--brightness, 0.98) * 0.9));
+}
+
+.glyph.pattern.final .pattern-layer.over {
+  opacity: 0.74;
+  z-index: 2;
+  mix-blend-mode: screen;
+  filter:
+    saturate(calc(var(--sat, 0.55) * 0.6)) contrast(calc(var(--contrast, 0.94) * 0.86)) brightness(calc(var(--brightness, 0.98) * 1.04));
 }
